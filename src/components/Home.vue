@@ -34,12 +34,14 @@
       <div class="carousel-cell last">
         <h2>That's it!</h2>
         <p>To share your choices, please copy this link.</p>
-        <p v-if="link">Share this link: <br><a :href="link">{{ link }}</a></p>
-        <p v-else>
+        <div v-if="link">
+          <p>Share this link: <br><a :href="link">{{ link }}</a></p>
+        </div>
+        <div v-else>
           <p v-if="nameError" class="error">Name is required.</p>
           <input v-model="name" :class="{'field-error' : nameError}" type="text" name="name" id="name" placeholder="Your name here, please."><br>
           <button @click="generateLink()">Generate Link</button>
-        </p>
+        </div>
         <p>Maybe you would like to <a @click="startOver()">Go Back</a> to review?</p>
       </div>
     </flickity>

@@ -1,7 +1,7 @@
 <template>
   <div class="home wrap">
     <flickity ref="flickity" class="carousel" :options="flickityOptions">
-      <div class="carousel-cell first">
+      <!-- <div class="carousel-cell first">
         <div v-if="name && hasResults">
           <h2>You're about to view the results from {{ name }}. <br>Would you like to...</h2>
           <button @click="makeEditable(false);next()">Review</button> or <button @click="makeEditable();next()">Edit</button>
@@ -30,12 +30,16 @@
             <button v-if="!isEditable" @click="next()">Next</button>
           </div>
         </div>
-      </div>
+      </div> -->
       <div class="carousel-cell last">
         <h2>That's it!</h2>
         <p>To share your choices, please copy this link.</p>
         <p v-if="link">Share this link: <br><a :href="link">{{ link }}</a></p>
-        <p v-else><input type="text" name="name" id="name" v-model="name" placeholder="Your name here, please."><br><button @click="generateLink()">Generate Link</button></p>
+        <p v-else>
+          <p v-if="nameError" class="error">Name is required.</p>
+          <input v-model="name" :class="{'field-error' : nameError}" type="text" name="name" id="name" placeholder="Your name here, please."><br>
+          <button @click="generateLink()">Generate Link</button>
+        </p>
         <p>Maybe you would like to <a @click="startOver()">Go Back</a> to review?</p>
       </div>
     </flickity>
@@ -54,6 +58,7 @@ export default {
       hasResults: false,
       name: null,
       isEditable: true,
+      nameError: false,
       comparisons: [{
         type: 'text',
         label: 'Mission Statement',
@@ -129,17 +134,6 @@ export default {
     }
   },
   methods: {
-    makeEditable (bool = true) {
-      this.isEditable = bool
-    },
-    trackSelection (comparison, option) {
-      if (this.isEditable) {
-        this.comparisons[comparison].chosen = option
-        this.$forceUpdate()
-        this.link = null
-      }
-      this.$refs.flickity.next()
-    },
     next () {
       this.$refs.flickity.next()
     },
@@ -153,6 +147,17 @@ export default {
     getUrlVar (q) {
       return (window.location.search.match(new RegExp('[?&]' + q + '=([^&]+)')) || [null])[1]
     },
+    makeEditable (bool = true) {
+      this.isEditable = bool
+    },
+    trackSelection (comparison, option) {
+      if (this.isEditable) {
+        this.comparisons[comparison].chosen = option
+        this.$forceUpdate()
+        this.link = null
+      }
+      this.$refs.flickity.next()
+    },
     addOptionsToComparison (choices) {
       // clean up options from URL variable fetching
       choices = choices.split('+')
@@ -161,16 +166,20 @@ export default {
       }
     },
     generateLink () {
-      let url = location.protocol + '//' + location.host + location.pathname + '?name=' + this.name + '&choices='
-      for (let i = 0; i < this.comparisons.length; i++) {
-        let total = this.comparisons.length - 1
-        if (total === i) {
-          url += this.comparisons[i].chosen
-        } else {
-          url += this.comparisons[i].chosen + '+'
+      if (this.name) {
+        let url = location.protocol + '//' + location.host + location.pathname + '?name=' + this.name + '&choices='
+        for (let i = 0; i < this.comparisons.length; i++) {
+          let total = this.comparisons.length - 1
+          if (total === i) {
+            url += this.comparisons[i].chosen
+          } else {
+            url += this.comparisons[i].chosen + '+'
+          }
         }
+        this.link = url
+      } else {
+        this.nameError = true
       }
-      this.link = url
     }
   },
   mounted () {
@@ -222,10 +231,16 @@ a.btn, button {
     cursor: pointer;
   }
 }
+.error {
+  color: red;
+}
+.field-error {
+  border: #c59d9d 1px solid;
+}
 .last {
   input#name {
     padding: 12px;
-    margin: 8px 0 17px;
+    margin: 0 0 17px;
     font-size: 18px;
   }
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="home wrap">
     <flickity ref="flickity" class="carousel" :options="flickityOptions">
-      <!-- <div class="carousel-cell first">
+      <div class="carousel-cell first">
         <div v-if="name && hasResults">
           <h2>You're about to view the results from {{ name }}. <br>Would you like to...</h2>
           <button @click="makeEditable(false);next()">Review</button> or <button @click="makeEditable();next()">Edit</button>
@@ -30,7 +30,7 @@
             <button v-if="!isEditable" @click="next()">Next</button>
           </div>
         </div>
-      </div> -->
+      </div>
       <div class="carousel-cell last">
         <h2>That's it!</h2>
         <p>To share your choices, please copy this link.</p>

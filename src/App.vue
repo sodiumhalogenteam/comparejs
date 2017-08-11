@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <h1>Compare</h1>
+    <div id="logo">
+      <h1>ComPear.JS</h1>
+      <p>Fruitful decision sharing.</p>
+    </div>
     <home></home>
     <footer>
       created by Chance Smith @SodiumHalogen
@@ -20,6 +23,9 @@ export default {
 </script>
 
 <style>
+h1 {
+  margin: 0;
+}
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

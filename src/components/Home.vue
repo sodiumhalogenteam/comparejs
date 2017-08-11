@@ -1,9 +1,15 @@
 <template>
   <div class="home wrap">
     <flickity ref="flickity" class="carousel" :options="flickityOptions">
-      <div class="carousel-cell">
-        <h2>Let's begin comparing the mission statement options.</h2>
-        <button @click="next()">Okay, I'm ready!</button>
+      <div class="carousel-cell first">
+        <div v-if="name && hasResults">
+          <h2>You're about to view the results from {{ name }}. <br>Would you like to...</h2>
+          <button @click="makeEditable(false);next()">Review</button> or <button @click="makeEditable();next()">Edit</button>
+        </div>
+        <div v-else>
+          <h2>Let's begin comparing.<br>On the left will be the original. Select from the right for the best options given.</h2>
+          <button @click="next()">Okay, I'm ready!</button>
+        </div>
       </div>
       <div v-for="(comparison, index) in comparisons">
         <div class="carousel-cell in-wrap">
@@ -21,14 +27,15 @@
             <div v-for="(option, i) in comparison.options">
               <p class="option" :data-c="comparison.chosen" :data-cc="comparisons[index].chosen" :data-i="i" :class="{active : comparison.chosen == i}" @click="trackSelection(index, i)">{{ option }}</p>
             </div>
+            <button v-if="!isEditable" @click="next()">Next</button>
           </div>
         </div>
       </div>
-      <div class="carousel-cell">
+      <div class="carousel-cell last">
         <h2>That's it!</h2>
         <p>To share your choices, please copy this link.</p>
         <p v-if="link">Share this link: <br><a :href="link">{{ link }}</a></p>
-        <p v-else><button @click="generateLink()">Generate Link</button></p>
+        <p v-else><input type="text" name="name" id="name" v-model="name" placeholder="Your name here, please."><br><button @click="generateLink()">Generate Link</button></p>
         <p>Maybe you would like to <a @click="startOver()">Go Back</a> to review?</p>
       </div>
     </flickity>
@@ -44,6 +51,9 @@ export default {
   data () {
     return {
       link: null,
+      hasResults: false,
+      name: null,
+      isEditable: true,
       comparisons: [{
         type: 'text',
         label: 'Mission Statement',
@@ -119,11 +129,16 @@ export default {
     }
   },
   methods: {
+    makeEditable (bool = true) {
+      this.isEditable = bool
+    },
     trackSelection (comparison, option) {
-      this.comparisons[comparison].chosen = option
-      this.$forceUpdate()
+      if (this.isEditable) {
+        this.comparisons[comparison].chosen = option
+        this.$forceUpdate()
+        this.link = null
+      }
       this.$refs.flickity.next()
-      this.link = null
     },
     next () {
       this.$refs.flickity.next()
@@ -146,7 +161,7 @@ export default {
       }
     },
     generateLink () {
-      let url = location.protocol + '//' + location.host + location.pathname + '?choices='
+      let url = location.protocol + '//' + location.host + location.pathname + '?name=' + this.name + '&choices='
       for (let i = 0; i < this.comparisons.length; i++) {
         let total = this.comparisons.length - 1
         if (total === i) {
@@ -163,8 +178,10 @@ export default {
       this.comparisons[i].chosen = null
     }
     let choices = this.getUrlVar('choices')
-    if (choices) {
+    this.name = this.getUrlVar('name')
+    if (choices && this.name) {
       this.addOptionsToComparison(choices)
+      this.hasResults = true
     }
     this.$forceUpdate()
     this.startOver()
@@ -203,6 +220,13 @@ a.btn, button {
   &:hover, &:focus, &:active {
     background: darken(#42b983, 10%);
     cursor: pointer;
+  }
+}
+.last {
+  input#name {
+    padding: 12px;
+    margin: 8px 0 17px;
+    font-size: 18px;
   }
 }
 .wrap {
